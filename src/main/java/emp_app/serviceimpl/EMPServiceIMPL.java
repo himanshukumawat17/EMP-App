@@ -20,9 +20,13 @@ public class EMPServiceIMPL implements EMPService {
     @Autowired
     private JwtUtil jwtUtil;
 
+    /**
+     * Registers a new user if the username is not already taken.
+     */
     @Override
     public ResponseEntity<?> signup(EMPEntity user) {
         Optional<EMPEntity> existingUser = repository.findByUserName(user.getUserName());
+
         if (existingUser.isPresent()) {
             return ResponseEntity
                     .badRequest()
@@ -30,29 +34,43 @@ public class EMPServiceIMPL implements EMPService {
         }
 
         repository.save(user);
+
         return ResponseEntity.ok(Collections.singletonMap("message", "User registered successfully"));
     }
 
+    /**
+     * Authenticates the user and returns a JWT token if credentials are valid.
+     */
     @Override
     public ResponseEntity<?> login(String username, String password) {
-        System.out.println("Login attempt for username: " + username);
+        System.out.println("Login attempt for username: [" + username + "]");
 
         Optional<EMPEntity> userOpt = repository.findByUserName(username);
 
-        if (userOpt.isPresent()) {
-            EMPEntity user = userOpt.get();
-            if (user.getPassword().equals(password)) {
-                String token = jwtUtil.generateToken(username);
-                Map<String, Object> response = new HashMap<>();
-                response.put("message", "Login successful");
-                response.put("token", token);
-                return ResponseEntity.ok(response);
-            } else {
-                return ResponseEntity.badRequest().body(Collections.singletonMap("message", "Wrong password"));
-            }
+        if (userOpt.isEmpty()) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(Collections.singletonMap("message", "User not found"));
         }
 
-        return ResponseEntity.badRequest().body(Collections.singletonMap("message", "User not found"));
-    }
+        EMPEntity user = userOpt.get();
 
+        if (!user.getPassword().equals(password)) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(Collections.singletonMap("message", "Wrong password"));
+        }
+
+        // Generate JWT token
+        String token = jwtUtil.generateToken(username);
+
+        // Prepare response
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "Login successful");
+        response.put("token", token);
+        response.put("userName", user.getUserName());
+        response.put("userId", user.getId()); // Optional, add if needed
+
+        return ResponseEntity.ok(response);
+    }
 }
