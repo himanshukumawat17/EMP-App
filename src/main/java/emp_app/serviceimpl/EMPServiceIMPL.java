@@ -1,7 +1,7 @@
 package emp_app.serviceimpl;
 
 import emp_app.entity.EMPEntity;
-import emp_app.respository.EMPRespository;
+import emp_app.respository.EMPRepository;
 import emp_app.service.EMPService;
 import emp_app.utils.JwtUtil;
 
@@ -15,7 +15,7 @@ import java.util.*;
 public class EMPServiceIMPL implements EMPService {
 
     @Autowired
-    private EMPRespository repository;
+    private EMPRepository repository;
 
     @Autowired
     private JwtUtil jwtUtil;
@@ -35,6 +35,8 @@ public class EMPServiceIMPL implements EMPService {
 
     @Override
     public ResponseEntity<?> login(String username, String password) {
+        System.out.println("Login attempt for username: " + username);
+
         Optional<EMPEntity> userOpt = repository.findByUserName(username);
 
         if (userOpt.isPresent()) {
@@ -52,4 +54,5 @@ public class EMPServiceIMPL implements EMPService {
 
         return ResponseEntity.badRequest().body(Collections.singletonMap("message", "User not found"));
     }
+
 }
