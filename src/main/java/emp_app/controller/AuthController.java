@@ -13,19 +13,19 @@ import emp_app.service.EMPService;
 
 @RestController
 @RequestMapping("/api/auth")
-@CrossOrigin(origins = "*") 
+@CrossOrigin(origins = "*")
 public class AuthController {
 
-    @Autowired
-    private EMPService authService;
+	@Autowired
+	private EMPService authService;
 
-    @PostMapping("/signup")
-    public ResponseEntity<?> signup(@RequestBody EMPEntity request) {
-        return authService.signup(request);
-    }
+	@PostMapping("/signup")
+	public ResponseEntity<?> signup(@RequestBody EMPEntity request) {
+		return authService.signup(request);
+	}
 
-    @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody EMPEntity request) {
-        return authService.login(request.getUserName(), request.getPassword());
-    }
+	@PostMapping("/login")
+	public ResponseEntity<?> login(@RequestBody EMPEntity request) {
+		return authService.login(request.getUserName(), request.getPassword());
+	}
 }
