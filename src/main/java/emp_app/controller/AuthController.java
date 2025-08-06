@@ -13,7 +13,7 @@ import emp_app.service.EMPService;
 
 @RestController
 @RequestMapping("/api/auth")
-@CrossOrigin(origins = "*") // Optional for frontend access
+@CrossOrigin(origins = "*") 
 public class AuthController {
 
     @Autowired

@@ -7,6 +7,7 @@ import emp_app.utils.JwtUtil;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -20,8 +21,11 @@ public class EMPServiceIMPL implements EMPService {
     @Autowired
     private JwtUtil jwtUtil;
 
+    @Autowired
+    private BCryptPasswordEncoder passwordEncoder;
+
     /**
-     * Registers a new user if the username is not already taken.
+     * Registers a new user with hashed password if username is unique.
      */
     @Override
     public ResponseEntity<?> signup(EMPEntity user) {
@@ -33,13 +37,28 @@ public class EMPServiceIMPL implements EMPService {
                     .body(Collections.singletonMap("message", "User already exists"));
         }
 
+        // ✅ Check if password and confirmPassword match
+        if (!user.getPassword().equals(user.getConfirmPassword())) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(Collections.singletonMap("message", "Passwords do not match"));
+        }
+
+        // ✅ Encrypt password
+        String encryptedPassword = passwordEncoder.encode(user.getPassword());
+        user.setPassword(encryptedPassword);
+
+        // Optional: Don't save confirmPassword to DB
+        user.setConfirmPassword(null);
+
         repository.save(user);
 
         return ResponseEntity.ok(Collections.singletonMap("message", "User registered successfully"));
     }
 
+
     /**
-     * Authenticates the user and returns a JWT token if credentials are valid.
+     * Authenticates user and returns JWT token.
      */
     @Override
     public ResponseEntity<?> login(String username, String password) {
@@ -55,7 +74,8 @@ public class EMPServiceIMPL implements EMPService {
 
         EMPEntity user = userOpt.get();
 
-        if (!user.getPassword().equals(password)) {
+        // Compare encrypted password using BCrypt
+        if (!passwordEncoder.matches(password, user.getPassword())) {
             return ResponseEntity
                     .badRequest()
                     .body(Collections.singletonMap("message", "Wrong password"));
@@ -69,7 +89,7 @@ public class EMPServiceIMPL implements EMPService {
         response.put("message", "Login successful");
         response.put("token", token);
         response.put("userName", user.getUserName());
-        response.put("userId", user.getId()); // Optional, add if needed
+        response.put("userId", user.getId());
 
         return ResponseEntity.ok(response);
     }
