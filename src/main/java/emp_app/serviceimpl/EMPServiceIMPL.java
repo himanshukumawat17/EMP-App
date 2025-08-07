@@ -1,6 +1,7 @@
 package emp_app.serviceimpl;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -99,7 +100,17 @@ public class EMPServiceIMPL implements EMPService {
 
 		String token = jwtUtil.generateToken(user.getUserName());
 
-		return ResponseEntity.ok(Map.of("message", "Login successful", "token", token, "userId", user.getId(), "empId",
-				user.getEmpId(), "companyCode", user.getCompanyCode(), "companyName", user.getCompanyName()));
+		Map<String, Object> response = new HashMap<>();
+		response.put("message", "Login successful");
+		response.put("token", token);
+		response.put("userId", user.getId());
+		response.put("empId", user.getEmpId());
+		response.put("UserName", user.getUserName());
+		response.put("EmployeeType", user.getEmployeeType());
+		response.put("companyCode", user.getCompanyCode());
+		response.put("companyName", user.getCompanyName());
+
+		return ResponseEntity.ok(response);
+
 	}
 }
