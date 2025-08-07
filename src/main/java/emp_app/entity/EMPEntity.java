@@ -1,11 +1,12 @@
 package emp_app.entity;
 
-import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import lombok.Data;
+
 @Data
-@Document(collection = "users")
+@Document(collection = "employees")
 public class EMPEntity {
 	@Id
 	private String id;
@@ -14,4 +15,8 @@ public class EMPEntity {
 	private String userName;
 	private String password;
 	private String confirmPassword;
+	private String employeeType;
+
+	private String companyName;
+	private String companyCode;
 }

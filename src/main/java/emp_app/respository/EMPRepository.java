@@ -1,10 +1,13 @@
 package emp_app.respository;
 
-import emp_app.entity.EMPEntity;
+import java.util.Optional;
+
 import org.springframework.data.mongodb.repository.MongoRepository;
 
-import java.util.Optional;
+import emp_app.entity.EMPEntity;
 
 public interface EMPRepository extends MongoRepository<EMPEntity, String> {
 	Optional<EMPEntity> findByUserName(String userName);
+
+	long countByCompanyCode(String companyCode);
 }
